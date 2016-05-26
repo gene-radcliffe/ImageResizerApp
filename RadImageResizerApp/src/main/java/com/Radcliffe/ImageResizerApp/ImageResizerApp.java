@@ -27,6 +27,7 @@ import javax.swing.JDialog;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.JOptionPane;
 import com.radcliffe.utilities.*;
+
 public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	
 	private PhotoSizes photosize;
