@@ -6,11 +6,11 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
-import java.awt.Component;
+
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.SpringLayout;
-import java.awt.font.TextLayout;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
@@ -23,7 +23,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JRadioButton;
 import javax.swing.JFileChooser;
 import javax.swing.JProgressBar;
-import javax.swing.JDialog;
+
 import javax.swing.filechooser.FileFilter;
 import javax.swing.JOptionPane;
 import com.radcliffe.utilities.*;
