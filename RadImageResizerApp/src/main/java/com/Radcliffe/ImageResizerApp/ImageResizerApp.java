@@ -6,16 +6,20 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
-
+import java.awt.event.KeyEvent;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.GridLayout;
 import javax.swing.SpringLayout;
-
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.imageio.ImageIO;
@@ -49,6 +53,9 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	private JLabel lblSelDir;
 	private JLabel lblDate;
 	private JProgressBar progressBar;
+	private JMenu menu;
+	private JMenuItem menuItem;
+	private JMenuBar menuBar;
 	private float progress;
 	private GridLayout glayout;
 	private SpringLayout layoutDir; 
@@ -77,8 +84,9 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 		initializeFileChooser();
 		createPanels();
 		createWindow();
+	
 		addPanelsToForm();
-		
+		createMenu();
 	}
 	private void initializeFileChooser(){
 		fileChooser = new JFileChooser();
@@ -273,6 +281,19 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 		this.setResizable(false);
 		this.setVisible(true);
 	}
+	private void createMenu(){
+		menuBar = new JMenuBar();
+		menu = new JMenu("Font");
+		menu.setMnemonic(KeyEvent.VK_O);
+		menuBar.add(menu);
+		
+		menuItem = menu.add(new JMenuItem("Set Font", 'O'));
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
+		menuItem.addActionListener(this);
+	
+		
+		this.setJMenuBar(menuBar);
+	}
 	private void addPanelsToForm(){
 		this.add(title);
 		this.add(panelDir);
@@ -394,6 +415,9 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 			
 		case "Cancel":
 			System.exit(0);
+			break;
+		case "Set Font":
+			new Style();
 			break;
 		}
 		
