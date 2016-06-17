@@ -11,8 +11,9 @@ import javax.swing.JPanel;
 import javax.swing.JComponent;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
+import javax.swing.BorderFactory;
 import java.awt.SystemColor;
-import java.awt.CardLayout;
+import javax.swing.SpringLayout;
 import javax.swing.JComboBox;
 import java.awt.GridLayout;
 enum Colors{
@@ -27,10 +28,9 @@ enum Colors{
 
 public class Style extends WinForm {
 	private JPanel panel1;
-	private JPanel panel2;
-	
+	private JComboBox comboBoxFont;
 	private JButton buttonOk, buttonExit;
-	private CardLayout cLayout;
+	private SpringLayout sLayout;
 	private Banner banner;
 	private TextLayout foreGround;
 	private TextLayout backGround;
@@ -41,11 +41,14 @@ public class Style extends WinForm {
 		banner = new Banner("Arial", Font.BOLD, 32);
 		banner.setString("Text Sample...");
 		panel1 = new JPanel();
-		panel2=new JPanel();	
+			
 		
-		cLayout = new CardLayout();
-		this.setLayout(new GridLayout(1,1,1,1));
-		panel1.add(banner);
+		sLayout = new SpringLayout();
+		this.setLayout(new GridLayout(2,1,1,1));
+		
+		panel1.setBorder(BorderFactory.createEtchedBorder());
+		
+		this.add(banner);
 		this.add(panel1);
 		this.setVisible(true);
 		

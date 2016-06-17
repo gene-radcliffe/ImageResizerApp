@@ -39,6 +39,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	private JRadioButton radioSizeSmall;
 	private JRadioButton radioSizeMedium;
 	private JRadioButton radioSizeLarge;
+	private JRadioButton radioGetDateFromFile;
 	private JPanel panelDir;
 	private JPanel panelSize;
 	private JPanel panelDate;
@@ -64,9 +65,9 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	private JFileChooser fileChooser;
 	private File pictureDir;
 	private ImageResizer imgResizer;
-	private ImageDater imgDater;
+	private ImageDater imgDater = new ImageDater();
 	private static String desktopPath;
-	
+	private boolean dateFromFile=false;
 	static{
 		desktopPath = System.getProperty("user.home") + "/Desktop";
 	}
@@ -75,7 +76,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	}
 	public ImageResizerApp(){
 		
-
+		
 	
 		title = new Title();
 		title.setBorder(BorderFactory.createEtchedBorder());
@@ -226,11 +227,13 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 		JLabel lblDateinst = new JLabel("Enter the Date and Time to stamp on the photos: (yyyy-mm-dd  hh:mm:ss) ");
 		lblDate = new JLabel("Date: ");
 		txtDate = new JTextField();
+		radioGetDateFromFile = new JRadioButton("Get Date From File");
+		radioGetDateFromFile.addActionListener(this);
 		txtDate.setPreferredSize(new Dimension (300,30));
 		panelDate.add(lblDateinst);
 		panelDate.add(lblDate);
 		panelDate.add(txtDate);
-		
+		panelDate.add(radioGetDateFromFile);
 		// make the layout for the Date input panel
 			layoutDate.putConstraint(SpringLayout.WEST, lblDateinst, 10, SpringLayout.WEST, panelDate);
 			layoutDate.putConstraint(SpringLayout.NORTH, lblDateinst, 30, SpringLayout.NORTH, panelDate);
@@ -242,6 +245,8 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 			layoutDate.putConstraint(SpringLayout.WEST, txtDate, 10, SpringLayout.EAST, lblDate);
 			layoutDate.putConstraint(SpringLayout.NORTH, txtDate, 25, SpringLayout.NORTH, lblDateinst);
 		
+			layoutDate.putConstraint(SpringLayout.WEST, radioGetDateFromFile, 10, SpringLayout.EAST, txtDate);
+			layoutDate.putConstraint(SpringLayout.NORTH, radioGetDateFromFile, 25, SpringLayout.NORTH, lblDateinst);
 		panelDate.setLayout(layoutDate);
 		
 		/*
@@ -291,7 +296,6 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
 		menuItem.addActionListener(this);
 	
-		
 		this.setJMenuBar(menuBar);
 	}
 	private void addPanelsToForm(){
@@ -337,7 +341,13 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 					
 					BufferedImage nImage = null;
 					nImage =imgResizer.fileToResize(file, photosize.getWidth(), photosize.getHeight());
-					imgDater = new ImageDater();
+					
+					try {
+						date = imgDater.readDateOnFile(file);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					//nImage = imgDater.dateStampImage(nImage, date);
 					nImage =imgDater.dateStampImage(nImage, date, Color.WHITE, Color.gray, 30);
 					String filename = file.getName();
@@ -404,18 +414,31 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 			radioSizeMedium.setSelected(false);
 			photosize = PhotoSizes.LARGE;
 			newDimension = new Dimension(photosize.getWidth(), photosize.getHeight());
-
+		
 			break;
+		
 		case "Apply":
 			Thread processingThread = new Thread(this);
 			processingThread.start();
 			
 			
 			break;
-			
+		case "Get Date From File":
+			if(this.dateFromFile==false){
+			this.txtDate.setEnabled(false);
+			this.txtDate.setText("Date from File Enabled");
+			dateFromFile=true;
+			}else{
+				this.txtDate.setEnabled(true);
+				this.txtDate.setText("");
+				dateFromFile = false;
+			}
+			break;
+		
 		case "Cancel":
 			System.exit(0);
 			break;
+		
 		case "Set Font":
 			new Style();
 			break;
@@ -423,6 +446,9 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 		
 		System.out.println(e.getActionCommand());
 	}
+
+	
+	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
