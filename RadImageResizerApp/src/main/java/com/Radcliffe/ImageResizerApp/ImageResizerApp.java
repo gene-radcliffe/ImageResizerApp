@@ -1,7 +1,7 @@
 package com.Radcliffe.ImageResizerApp;
 
 import java.io.*;
-
+import java.util.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.image.BufferedImage;
@@ -29,8 +29,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JProgressBar;
 
 import javax.swing.filechooser.FileFilter;
-import javax.swing.JOptionPane;
+
 import com.radcliffe.utilities.*;
+
+import javax.swing.JOptionPane;
+
+
 
 public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	
@@ -66,7 +70,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	private File pictureDir;
 	private ImageResizer imgResizer;
 	private ImageDater imgDater = new ImageDater();
-	private static String desktopPath;
+	private final static String desktopPath;
 	private boolean dateFromFile=false;
 	static{
 		desktopPath = System.getProperty("user.home") + "/Desktop";
@@ -336,23 +340,46 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 			
 				float total = pictureDir.listFiles().length;
 				float counter =0;
-				
-				for(File file:pictureDir.listFiles()){
+				FilenameFilter filenamefilter = new FilenameFilter(){
+
+					@Override
+					public boolean accept(File dir, String name) {
+						// TODO Auto-generated method stub
+						String lowercase = name.toLowerCase();
+						if(lowercase.endsWith(".jpg")==true){
+							return true;
+						}else{
+							return false;
+						}
+					}
 					
+				};
+				File[] files = pictureDir.listFiles(filenamefilter);
+				
+				for(File file:files){
 					BufferedImage nImage = null;
+					
 					nImage =imgResizer.fileToResize(file, photosize.getWidth(), photosize.getHeight());
+					
 					
 					try {
 						date = imgDater.readDateOnFile(file);
+						if (date.equals("")){
+							Date d = new Date(file.lastModified());
+							date = d.toString();
+						}
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
-						e1.printStackTrace();
+						e1.getMessage();
 					}
+					System.out.println("Resizing");
 					//nImage = imgDater.dateStampImage(nImage, date);
 					nImage =imgDater.dateStampImage(nImage, date, Color.WHITE, Color.gray, 30);
+					
 					String filename = file.getName();
 					filename = filename.substring(0, filename.indexOf('.'));
 					filename = pictureDir.getAbsolutePath() + "/" + filename +"dated.jpg";
+					
 					File nFile = new File(filename);
 					
 					
@@ -370,7 +397,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 					progress = (counter /total)*100; 
 					progressBar.setValue((int)(progress));
 					
-					System.out.println(progressBar.getValue());
+					
 
 					
 					try {
