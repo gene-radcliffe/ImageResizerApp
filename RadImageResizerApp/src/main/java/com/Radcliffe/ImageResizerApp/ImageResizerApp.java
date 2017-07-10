@@ -478,7 +478,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 			break;
 		
 		case "Set Font":
-			new StyleWindow();
+			new StyleWindow2();
 			break;
 		}
 		
