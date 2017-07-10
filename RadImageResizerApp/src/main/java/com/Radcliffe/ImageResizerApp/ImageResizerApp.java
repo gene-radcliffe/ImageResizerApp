@@ -88,10 +88,11 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 		
 		initializeFileChooser();
 		createPanels();
+		createMenu();
 		createWindow();
 	
 		addPanelsToForm();
-		createMenu();
+		
 	}
 	private void initializeFileChooser(){
 		fileChooser = new JFileChooser();
@@ -294,12 +295,12 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 		menuBar = new JMenuBar();
 		menu = new JMenu("Font");
 		menu.setMnemonic(KeyEvent.VK_O);
-		menuBar.add(menu);
+		
 		
 		menuItem = menu.add(new JMenuItem("Set Font", 'O'));
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
 		menuItem.addActionListener(this);
-	
+		menuBar.add(menu);
 		this.setJMenuBar(menuBar);
 	}
 	private void addPanelsToForm(){
@@ -313,7 +314,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	}
 
 	public void processPictures(){
-		
+		//check if the directory has been selected
 		if(txtDir.getText().length() <=0 && pictureDir == null){			
 			JOptionPane.showMessageDialog(this, "Please Select a Directory", "No Directory Selected", JOptionPane.ERROR_MESSAGE);
 		
@@ -323,23 +324,25 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 			JOptionPane.showMessageDialog(this, "Please Select Size", "No Size Selected", JOptionPane.ERROR_MESSAGE);	
 		}else
 		{
-			System.out.println(txtDir.getText());
+			//check if the directory has been selected
 			if(pictureDir == null){
 				pictureDir = new File(txtDir.getText());
 			}
-			System.out.println(pictureDir.getAbsolutePath());
+			//check if the directory exists and if it's a real directory on the drive
 			if(pictureDir.exists()==false && pictureDir.isDirectory() == false){
 				JOptionPane.showMessageDialog(this, "the Directory is not valid or does not exists", "Not valid Directory", JOptionPane.ERROR_MESSAGE);
 			}else{
 
-				
+				//get the date from the text box
 				String date = txtDate.getText();
+				// make sure we have a date to stamp if a general date has been entered
+				
 				if(date.length() <=0){
 					JOptionPane.showMessageDialog(this, "Please Enter Date", "Date is null", JOptionPane.ERROR_MESSAGE);
 				}
 			
-				float total = pictureDir.listFiles().length;
-				float counter =0;
+				//set the file filter to choose only jpeg pictures.
+				
 				FilenameFilter filenamefilter = new FilenameFilter(){
 
 					@Override
@@ -354,14 +357,20 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 					}
 					
 				};
+				
 				File[] files = pictureDir.listFiles(filenamefilter);
+				
+				float total = files.length;
+				float counter =0;
+				
+			
 				
 				for(File file:files){
 					BufferedImage nImage = null;
 					
 					nImage =imgResizer.fileToResize(file, photosize.getWidth(), photosize.getHeight());
-					
-					
+					//read exif date tag if the "date from file" is choosen
+					if(dateFromFile==true){
 					try {
 						date = imgDater.readDateOnFile(file);
 						if (date.equals("")){
@@ -372,7 +381,8 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 						// TODO Auto-generated catch block
 						e1.getMessage();
 					}
-					System.out.println("Resizing");
+					}
+					
 					//nImage = imgDater.dateStampImage(nImage, date);
 					nImage =imgDater.dateStampImage(nImage, date, Color.WHITE, Color.gray, 30);
 					
@@ -409,7 +419,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 				}//end for
 				
 				JOptionPane.showMessageDialog(this,"Task is Completed.", "Done", JOptionPane.PLAIN_MESSAGE );
-			
+				Apply.setEnabled(true);
 			}
 					
 			
@@ -445,6 +455,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 			break;
 		
 		case "Apply":
+			Apply.setEnabled(false);
 			Thread processingThread = new Thread(this);
 			processingThread.start();
 			
@@ -467,7 +478,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 			break;
 		
 		case "Set Font":
-			new Style();
+			new StyleWindow();
 			break;
 		}
 		

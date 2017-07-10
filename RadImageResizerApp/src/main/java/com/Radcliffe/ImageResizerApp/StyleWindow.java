@@ -1,5 +1,7 @@
 package com.Radcliffe.ImageResizerApp;
 import com.radcliffe.Forms.*;
+import com.radcliffe.utilities.ImageResizer;
+import javax.swing.JDialog;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -26,8 +28,9 @@ enum Colors{
 	}
 }
 
-public class Style extends WinForm {
-	private JPanel panel1;
+public class StyleWindow extends JDialog {
+	private static StyleConfiguration styleConfig;
+	private JPanel mainPanel;
 	private JComboBox comboBoxFont;
 	private JButton buttonOk, buttonExit;
 	private SpringLayout sLayout;
@@ -35,21 +38,24 @@ public class Style extends WinForm {
 	private TextLayout foreGround;
 	private TextLayout backGround;
 	
-	public Style(){
+	public StyleWindow(){
 		
-		super("Font and Color", new Dimension(600,300));
+		//super("Font and Color", new Dimension(600,300));
+		this.setTitle("Font and Style");
+		this.setSize(new Dimension(600,300));
+		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		banner = new Banner("Arial", Font.BOLD, 32);
 		banner.setString("Text Sample...");
-		panel1 = new JPanel();
+		mainPanel = new JPanel();
 			
 		
 		sLayout = new SpringLayout();
 		this.setLayout(new GridLayout(2,1,1,1));
 		
-		panel1.setBorder(BorderFactory.createEtchedBorder());
+		mainPanel.setBorder(BorderFactory.createEtchedBorder());
 		
 		this.add(banner);
-		this.add(panel1);
+		this.add(mainPanel);
 		this.setVisible(true);
 		
 	}
