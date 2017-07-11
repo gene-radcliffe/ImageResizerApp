@@ -1,3 +1,4 @@
+
 package com.Radcliffe.ImageResizerApp;
 import java.awt.Color;
 import java.awt.Font;
@@ -6,16 +7,34 @@ public class StyleConfiguration {
 
 	private static StyleConfiguration instance = null;
 	
-	
-	private static int fontSize;
-	private static Color fontColor;
-	private static Font fontStyle;
+	private static String strFontName = "Arial";
+	private static Font fontName;
+	private static int fontSize = 32;
+	private static Color fontColor = new Color(255,255,255);
+	private static int fontStyle = Font.PLAIN;
+	private static Color shadowColor = new Color(50,50,50);
 	
 	public static StyleConfiguration getInstance() {
 		if(instance == null){
 			instance = new StyleConfiguration();
 		}
 		return instance;
+	}
+
+	public static String getFontName() {
+		return strFontName;
+	}
+	
+	public static Font getFontName(int a) {
+		return fontName;
+	}
+
+	public static void setFontName(Font fontName) {
+		StyleConfiguration.fontName = fontName;
+	}
+	
+	public static void setFontName(String fontName){
+		strFontName = fontName;
 	}
 
 	public static int getFontSize() {
@@ -34,11 +53,17 @@ public class StyleConfiguration {
 		StyleConfiguration.fontColor = fontColor;
 	}
 
-	public static Font getFontStyle() {
+	public static Color getShadowColor(){
+		return shadowColor;
+	}
+	public static void setShadowColor(Color color){
+		shadowColor = color;
+	}
+	public static int getFontStyle() {
 		return fontStyle;
 	}
 
-	public static void setFontStyle(Font fontStyle) {
+	public static void setFontStyle(int fontStyle) {
 		StyleConfiguration.fontStyle = fontStyle;
 	}
 
