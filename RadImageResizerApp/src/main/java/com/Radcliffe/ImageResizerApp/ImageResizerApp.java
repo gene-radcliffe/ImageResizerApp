@@ -1,21 +1,25 @@
 package com.Radcliffe.ImageResizerApp;
 
 import java.io.*;
-
+import java.util.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
-
+import java.awt.event.KeyEvent;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.GridLayout;
 import javax.swing.SpringLayout;
-
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.imageio.ImageIO;
@@ -25,8 +29,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JProgressBar;
 
 import javax.swing.filechooser.FileFilter;
-import javax.swing.JOptionPane;
+
 import com.radcliffe.utilities.*;
+
+import javax.swing.JOptionPane;
+
+
 
 public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	
@@ -35,6 +43,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	private JRadioButton radioSizeSmall;
 	private JRadioButton radioSizeMedium;
 	private JRadioButton radioSizeLarge;
+	private JRadioButton radioGetDateFromFile;
 	private JPanel panelDir;
 	private JPanel panelSize;
 	private JPanel panelDate;
@@ -49,6 +58,9 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	private JLabel lblSelDir;
 	private JLabel lblDate;
 	private JProgressBar progressBar;
+	private JMenu menu;
+	private JMenuItem menuItem;
+	private JMenuBar menuBar;
 	private float progress;
 	private GridLayout glayout;
 	private SpringLayout layoutDir; 
@@ -57,9 +69,9 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	private JFileChooser fileChooser;
 	private File pictureDir;
 	private ImageResizer imgResizer;
-	private ImageDater imgDater;
-	private static String desktopPath;
-	
+	private ImageDater imgDater = new ImageDater();
+	private final static String desktopPath;
+	private boolean dateFromFile=false;
 	static{
 		desktopPath = System.getProperty("user.home") + "/Desktop";
 	}
@@ -68,7 +80,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	}
 	public ImageResizerApp(){
 		
-
+		
 	
 		title = new Title();
 		title.setBorder(BorderFactory.createEtchedBorder());
@@ -76,7 +88,9 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 		
 		initializeFileChooser();
 		createPanels();
+		createMenu();
 		createWindow();
+	
 		addPanelsToForm();
 		
 	}
@@ -218,11 +232,13 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 		JLabel lblDateinst = new JLabel("Enter the Date and Time to stamp on the photos: (yyyy-mm-dd  hh:mm:ss) ");
 		lblDate = new JLabel("Date: ");
 		txtDate = new JTextField();
+		radioGetDateFromFile = new JRadioButton("Get Date From File");
+		radioGetDateFromFile.addActionListener(this);
 		txtDate.setPreferredSize(new Dimension (300,30));
 		panelDate.add(lblDateinst);
 		panelDate.add(lblDate);
 		panelDate.add(txtDate);
-		
+		panelDate.add(radioGetDateFromFile);
 		// make the layout for the Date input panel
 			layoutDate.putConstraint(SpringLayout.WEST, lblDateinst, 10, SpringLayout.WEST, panelDate);
 			layoutDate.putConstraint(SpringLayout.NORTH, lblDateinst, 30, SpringLayout.NORTH, panelDate);
@@ -234,6 +250,8 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 			layoutDate.putConstraint(SpringLayout.WEST, txtDate, 10, SpringLayout.EAST, lblDate);
 			layoutDate.putConstraint(SpringLayout.NORTH, txtDate, 25, SpringLayout.NORTH, lblDateinst);
 		
+			layoutDate.putConstraint(SpringLayout.WEST, radioGetDateFromFile, 10, SpringLayout.EAST, txtDate);
+			layoutDate.putConstraint(SpringLayout.NORTH, radioGetDateFromFile, 25, SpringLayout.NORTH, lblDateinst);
 		panelDate.setLayout(layoutDate);
 		
 		/*
@@ -273,6 +291,18 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 		this.setResizable(false);
 		this.setVisible(true);
 	}
+	private void createMenu(){
+		menuBar = new JMenuBar();
+		menu = new JMenu("Font");
+		menu.setMnemonic(KeyEvent.VK_O);
+		
+		
+		menuItem = menu.add(new JMenuItem("Set Font", 'O'));
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
+		menuItem.addActionListener(this);
+		menuBar.add(menu);
+		this.setJMenuBar(menuBar);
+	}
 	private void addPanelsToForm(){
 		this.add(title);
 		this.add(panelDir);
@@ -284,7 +314,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 	}
 
 	public void processPictures(){
-		
+		//check if the directory has been selected
 		if(txtDir.getText().length() <=0 && pictureDir == null){			
 			JOptionPane.showMessageDialog(this, "Please Select a Directory", "No Directory Selected", JOptionPane.ERROR_MESSAGE);
 		
@@ -294,34 +324,72 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 			JOptionPane.showMessageDialog(this, "Please Select Size", "No Size Selected", JOptionPane.ERROR_MESSAGE);	
 		}else
 		{
-			System.out.println(txtDir.getText());
+			//check if the directory has been selected
 			if(pictureDir == null){
 				pictureDir = new File(txtDir.getText());
 			}
-			System.out.println(pictureDir.getAbsolutePath());
+			//check if the directory exists and if it's a real directory on the drive
 			if(pictureDir.exists()==false && pictureDir.isDirectory() == false){
 				JOptionPane.showMessageDialog(this, "the Directory is not valid or does not exists", "Not valid Directory", JOptionPane.ERROR_MESSAGE);
 			}else{
 
-				
+				//get the date from the text box
 				String date = txtDate.getText();
+				// make sure we have a date to stamp if a general date has been entered
+				
 				if(date.length() <=0){
 					JOptionPane.showMessageDialog(this, "Please Enter Date", "Date is null", JOptionPane.ERROR_MESSAGE);
 				}
 			
-				float total = pictureDir.listFiles().length;
+				//set the file filter to choose only jpeg pictures.
+				
+				FilenameFilter filenamefilter = new FilenameFilter(){
+
+					@Override
+					public boolean accept(File dir, String name) {
+						// TODO Auto-generated method stub
+						String lowercase = name.toLowerCase();
+						if(lowercase.endsWith(".jpg")==true){
+							return true;
+						}else{
+							return false;
+						}
+					}
+					
+				};
+				
+				File[] files = pictureDir.listFiles(filenamefilter);
+				
+				float total = files.length;
 				float counter =0;
 				
-				for(File file:pictureDir.listFiles()){
-					
+			
+				
+				for(File file:files){
 					BufferedImage nImage = null;
+					
 					nImage =imgResizer.fileToResize(file, photosize.getWidth(), photosize.getHeight());
-					imgDater = new ImageDater();
+					//read exif date tag if the "date from file" is choosen
+					if(dateFromFile==true){
+					try {
+						date = imgDater.readDateOnFile(file);
+						if (date.equals("")){
+							Date d = new Date(file.lastModified());
+							date = d.toString();
+						}
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.getMessage();
+					}
+					}
+					
 					//nImage = imgDater.dateStampImage(nImage, date);
 					nImage =imgDater.dateStampImage(nImage, date, Color.WHITE, Color.gray, 30);
+					
 					String filename = file.getName();
 					filename = filename.substring(0, filename.indexOf('.'));
 					filename = pictureDir.getAbsolutePath() + "/" + filename +"dated.jpg";
+					
 					File nFile = new File(filename);
 					
 					
@@ -339,7 +407,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 					progress = (counter /total)*100; 
 					progressBar.setValue((int)(progress));
 					
-					System.out.println(progressBar.getValue());
+					
 
 					
 					try {
@@ -351,7 +419,7 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 				}//end for
 				
 				JOptionPane.showMessageDialog(this,"Task is Completed.", "Done", JOptionPane.PLAIN_MESSAGE );
-			
+				Apply.setEnabled(true);
 			}
 					
 			
@@ -383,22 +451,42 @@ public class ImageResizerApp extends JFrame implements Runnable, ActionListener{
 			radioSizeMedium.setSelected(false);
 			photosize = PhotoSizes.LARGE;
 			newDimension = new Dimension(photosize.getWidth(), photosize.getHeight());
-
+		
 			break;
+		
 		case "Apply":
+			Apply.setEnabled(false);
 			Thread processingThread = new Thread(this);
 			processingThread.start();
 			
 			
 			break;
-			
+		case "Get Date From File":
+			if(this.dateFromFile==false){
+			this.txtDate.setEnabled(false);
+			this.txtDate.setText("Date from File Enabled");
+			dateFromFile=true;
+			}else{
+				this.txtDate.setEnabled(true);
+				this.txtDate.setText("");
+				dateFromFile = false;
+			}
+			break;
+		
 		case "Cancel":
 			System.exit(0);
+			break;
+		
+		case "Set Font":
+			new StyleWindow2();
 			break;
 		}
 		
 		System.out.println(e.getActionCommand());
 	}
+
+	
+	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
